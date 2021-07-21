@@ -12,10 +12,14 @@ export const HomePage = ({history}) => {
     const {online, socket} = useContext(SocketContext);
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log(formValues)
         if(user.trim().length > 0){
             socket.emit('add-user', {name:user});
-            history.push('/room')
+            history.push(
+                {
+                    pathname: '/room',
+                    state: user
+                }
+            );
         }
     }
     return (
