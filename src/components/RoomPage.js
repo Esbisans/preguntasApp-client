@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from "react";
 import {SocketContext} from "../context/SocketContext";
-import {act} from "@testing-library/react";
+import Swal from 'sweetalert2'
 
 export const RoomPage = ({location}) => {
 
@@ -9,6 +9,7 @@ export const RoomPage = ({location}) => {
     const {socket} = useContext(SocketContext);
     const [play, setPlay] = useState(false);
     const [actual, setActual] = useState(0);
+    const [mayor, setMayor] = useState({name: "", score: 0});
 
     const handleIniciar = (e) => {
         e.preventDefault();
@@ -20,21 +21,66 @@ export const RoomPage = ({location}) => {
     const handleCorrecta = (e) => {
         e.preventDefault();
         socket.emit('respuesta-correcta', location.state);
+        socket.emit('aumentar-pregunta', location.state);
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: false,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+        Toast.fire({
+            icon: 'success',
+            title: 'Respuesta correcta'
+        })
         actual+1 !== preguntas.length
             ?
-        setActual(actual+1)
+                setActual(actual+1)
             :
-            socket.emit('finish', true);
+                    setActual(actual+1);
     }
     const handleIncorrecta = (e) => {
         e.preventDefault();
+        socket.emit('aumentar-pregunta', location.state);
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: false,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+        Toast.fire({
+            icon: 'error',
+            title: 'Respuesta incorrecta'
+        })
         actual+1 !== preguntas.length
             ?
-            setActual(actual+1)
+                setActual(actual+1)
             :
-            socket.emit('finish', true);
+                setActual(actual+1)
     }
-
+/*
+    const terminado = () => {
+        users.map(user => (
+            user.question === preguntas.length-1
+            ?
+                setFin(true)
+            :
+                setFin(false)
+        ));
+        console.log(fin)
+    }
+*/
 
     useEffect(() => {
         socket.on('current-users', (users) => {
@@ -68,6 +114,7 @@ export const RoomPage = ({location}) => {
                     <tr>
                         <th>Usuarios conectados</th>
                         <th>Puntuación</th>
+                        <th>Pregunta</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -88,7 +135,14 @@ export const RoomPage = ({location}) => {
                                                 </td>
 
                                     }
+                                    {
+                                        user.score>mayor.score
+                                        ?
+                                            setMayor({name: user.name, score: user.score})
+                                            : console.log(mayor)
+                                    }
                                     <td>{user.score}</td>
+                                    <td>{user.question}/{preguntas.length}</td>
                                 </tr>
                             ))
                         }
@@ -111,8 +165,9 @@ export const RoomPage = ({location}) => {
                         {
                             play
                                 ?
-                                preguntas.length === 0
-                                    ? <h1>Cargando ... </h1>
+                                actual === preguntas.length
+                                    ?
+                                                <h2>El jugador con Mayor puntuacion es: <span className="text-primary"> {mayor.name}</span></h2>
                                     :
                                     <div className="modal-content card" >
                                         <div className="card-body">
