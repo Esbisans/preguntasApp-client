@@ -1,10 +1,14 @@
-# PreguntasApp
+# PreguntasApp Cliente
 
 Es un proyecto creado con React implementando Web Sockets destinado como un juego en línea multijugador de preguntas en tiempo real donde los usuarios pueden competir para contestar la mayor cantidad de preguntas correctas
 
 El proyecto puede ser inicializado con:
 
 ### `npm start`
+
+o en modo desarrollo con Nodemon
+
+### `npm run dev`
 
 ## Puerto
 
