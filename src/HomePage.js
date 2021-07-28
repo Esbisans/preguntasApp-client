@@ -1,27 +1,52 @@
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import {SocketContext} from "./context/SocketContext";
 import {useForm} from "./hooks/useForm";
+import Swal from 'sweetalert2'
 
 export const HomePage = ({history}) => {
-
+    const {online, socket} = useContext(SocketContext);
+    const [users, setUsers] = useState([]);
     const [formValues, handleInputChange] = useForm({
         user: ''
     });
     const {user} = formValues;
 
-    const {online, socket} = useContext(SocketContext);
+    useEffect(() => {
+        socket.on('current-users', (users) => {
+            setUsers(users);
+        })
+        return () => {
+            socket.off('current-users');
+        }
+    }, [socket]);
+
+
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if(user.trim().length > 0){
-            socket.emit('add-user', {name:user});
-            history.push(
-                {
-                    pathname: '/room',
-                    state: user
-                }
-            );
+            const resultado = users.find(element =>
+                element.name === user
+            )
+            if(resultado !== undefined){
+                Swal.fire({
+                    title: 'Usuario ya esta en uso',
+                    icon: 'error'
+                })
+            }
+            else {
+                socket.emit('add-user', {name:user});
+                history.push(
+                    {
+                        pathname: '/room',
+                        state: user
+                    }
+                );
+            }
+
         }
     }
+
     return (
         <div className="container">
             <div className="alert">

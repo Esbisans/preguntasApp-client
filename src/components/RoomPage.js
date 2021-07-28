@@ -14,8 +14,7 @@ export const RoomPage = ({location}) => {
     const handleIniciar = (e) => {
         e.preventDefault();
         socket.emit('iniciar', play);
-        console.log(actual)
-        //setActual(preguntas.find(pregunta => pregunta.id === 1))
+        socket.emit('send-user', location.state);
     }
 
     const handleCorrecta = (e) => {
@@ -69,18 +68,7 @@ export const RoomPage = ({location}) => {
             :
                 setActual(actual+1)
     }
-/*
-    const terminado = () => {
-        users.map(user => (
-            user.question === preguntas.length-1
-            ?
-                setFin(true)
-            :
-                setFin(false)
-        ));
-        console.log(fin)
-    }
-*/
+
 
     useEffect(() => {
         socket.on('current-users', (users) => {
@@ -93,11 +81,17 @@ export const RoomPage = ({location}) => {
         socket.on('show', (iniciar) => {
             setPlay(true);
         })
-        /*
+/*
         socket.on('current-question', (question) => {
             setActual(question)
         })
-        */
+
+
+*/
+        socket.on('current-pregunta', (question) => {
+            setActual(question)
+        })
+
         return () => {
             socket.off('current-users');
             socket.off('current-preguntas')
@@ -139,7 +133,7 @@ export const RoomPage = ({location}) => {
                                         user.score>mayor.score
                                         ?
                                             setMayor({name: user.name, score: user.score})
-                                            : console.log(mayor)
+                                            : null
                                     }
                                     <td>{user.score}</td>
                                     <td>{user.question}/{preguntas.length}</td>
