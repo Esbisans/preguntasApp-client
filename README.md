@@ -6,10 +6,6 @@ El proyecto puede ser inicializado con:
 
 ### `npm start`
 
-o en modo desarrollo con Nodemon
-
-### `npm run dev`
-
 ## Puerto
 
 El proyecto esta alojado en el puerto local **3003**
